@@ -1,0 +1,29 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: schema.sql
+      id: schema-sql
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: schema.sql
+        setup-command: ''
+        command: schema,sql
+        timeout: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        SCHEMA-SQL_RESULTS: "${{steps.schema-sql.outputs.result}}"
+      with:
+        runners: schema-sql
